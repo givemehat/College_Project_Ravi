@@ -1,4 +1,4 @@
-# Battery Health Prognostics & Remaining Useful Life (RUL) Prediction for Autonomous Underwater Vehicles (AUVs)
+# Battery Health Monitoring (SOH) & Remaining Useful Life (RUL) Prediction
 
 [![TIH IIT Guwahati](https://img.shields.io/badge/TIH%20IIT%20Guwahati-Internship%20Phase-00529B.svg)](https://tih.iitg.ac.in)
 [![Track](https://img.shields.io/badge/Track-Group%20O4-blue.svg)]()
@@ -7,155 +7,92 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![NASA Dataset](https://img.shields.io/badge/Dataset-NASA%20PCoE-orange.svg)](https://data.nasa.gov/)
 
-An end-to-end, production-grade deep learning framework for **Battery State of Health (SOH)** estimation and **Remaining Useful Life (RUL)** forecasting under marine mission profiles and dynamic degradation dynamics.
+An end-to-end, reproducible deep learning framework for **Battery State of Health (SOH)** estimation and **Remaining Useful Life (RUL)** prognostics on lithium-ion battery degradation cycles.
 
 Developed as part of the **TIH IIT Guwahati 4-Week Online Internship Research Project** (Group O4).
 
 ---
 
-## 📌 Submission Milestones & Review Deliverables
+## 📌 Project Overview & Objectives
 
-| Milestone / Stage | Deliverable Document | Key Content & Inclusions |
-| :--- | :--- | :--- |
-| **Pre-Dataset Readiness & Mentor Review (Day 6)** | [Methodology Document V1](docs/methodology_v1.md) | **Methodology V1**: Mathematical SOH & RUL definitions, literature review (*Qiu et al., 2024*, *Ma et al., 2025*), data-readiness package (34 NASA cells), CEEMDAN decomposition, 8-model architecture zoo, and multi-task loss ($\mathcal{L}_{\text{RUL}} + 10.0 \cdot \mathcal{L}_{\text{cap}}$). |
-| **Mentor Decision & Corrections Log** | [Mentor Review Corrections](reports/mentor_review_corrections.md) | **Mentor Corrections**: Confirmed EOL failure thresholds ($1.40\text{ Ah}$ for B0005/6/18, $1.50\text{ Ah}$ for B0007), strict cell-wise zero-leakage split, out-of-sample scaling, capacity regeneration modeling, and AUV embedded edge constraints. |
-| **Updated Experiment Plan** | [Updated Experiment Plan](experiments/updated_experiment_plan.md) | **Experiment Plan V1**: 8-model comparison matrix, hyperparameter search grids, AdamW optimizer schedule, sequence length ($L=15$) ablation plan, and cross-cell generalization folds. |
-| **Mentor Review Presentation** | [3-Slide Review Pack](reports/mentor_review_2_presentation_pack.md) | **Mentor Review 2 Pack**: Slide 1 (Pre-Dataset Readiness), Slide 2 (Preprocessing, Modeling & Evaluation Plan), Slide 3 (Mentor Corrections & Validated Constraints). |
-| **Week 2 — Day 1** | [Problem Understanding](docs/week2_day1_problem_understanding_and_system_definition.md) | Technical problem formulation, mathematical SOH/RUL definitions, end-to-end software pipeline diagram, and 8+ mentor review questions. |
-| **Week 2 — Day 2** | [Data Exploration & Baseline](docs/week2_day2_data_exploration_and_baseline_experiment.md) | Quality audit of 34 NASA cells (2,744 cycles), leakage-safe split, empirical baseline vs Random Forest vs 6 deep learning models, challenges & findings. |
-| **Interactive Submission Notebook** | [Week 2 Submission Notebook](notebooks/week2_day1_day2_submission.ipynb) | Executable Jupyter walkthrough of data inspection, baseline experiments, and benchmark visualization. |
+Accurate estimation of battery health and remaining lifetime is critical for ensuring operational safety and avoiding sudden system failure in energy storage applications. This project implements a comprehensive 26-day experimental pipeline using the benchmark NASA Ames Prognostics Center of Excellence (PCoE) battery aging dataset.
+
+### Core Objectives:
+1. **State of Health (SOH) Estimation**: Quantify instantaneous usable discharge capacity relative to nominal capacity:
+   $$\text{SOH}_k = \frac{C_k}{C_{\text{nominal}}} \times 100\%$$
+2. **Remaining Useful Life (RUL) Forecasting**: Predict the number of operational discharge cycles remaining before capacity drops permanently below the End-of-Life (EOL) failure threshold ($1.40\text{ Ah}$ for B0005/B0006/B0018, $1.50\text{ Ah}$ for B0007):
+   $$\text{RUL}_k = \max(0, k_{\text{EOL}} - k)$$
+3. **Capacity Regeneration & Knee-Transition Modeling**: Address physical non-linearities including electrochemical capacity rebound spikes during rest intervals and accelerated degradation during the late-life "knee" transition.
 
 ---
 
-## 🌟 Key Highlights & Innovations
+## 🔬 Experimental Methodology & Pipeline
 
-- **Domain-Specific Formulation**: Formulated for Autonomous Underwater Vehicles (AUVs) and marine energy storage systems facing thermal gradients and pulsed load surges (*Ma et al., 2025*).
-- **Novel Hybrid Architecture**: Proposed **CEEMDAN-TCN-BiLSTM-DualAttention** network combining multi-scale dilated causal temporal convolutions, squeeze-and-excitation channel attention, bidirectional recurrent units, and multi-head self-attention (*Qiu et al., 2024*).
-- **Capacity Regeneration Modeling**: Explicitly models non-linear electrochemical capacity rebound during resting intervals.
-- **Strict Leakage Prevention**: Full zero-shot cross-cell validation (Trained on `B0005` & `B0006`, validated on `B0007`, tested out-of-sample on `B0018`).
-- **Comprehensive Benchmarks**: Compares 8 distinct prognostic algorithms across MAE, RMSE, MAPE, $R^2$, training duration, inference latency, and model size.
+- **Dataset**: NASA PCoE Lithium-Ion Battery Aging Dataset (`B0005`, `B0006`, `B0007`, `B0018`).
+- **Strict Zero-Leakage Evaluation**:
+  - **Training Set**: Cells `B0005` & `B0006` (scalers fitted strictly on training data).
+  - **Validation Set**: Cell `B0007` (used for hyperparameter selection and checkpoint tuning).
+  - **Unseen Test Set**: Cell `B0018` (evaluated zero-shot out-of-sample).
+- **Feature Engineering**: Extracted cycle-by-cycle summary features including terminal voltage statistics, thermal elevation ($\Delta T = T_{\text{max}} - T_{\text{start}}$), charge duration, and rolling statistics using a sequence sliding window ($L = 15$).
+- **Model Zoo**:
+  - **Baselines**: Ridge Regression and Random Forest Regressor.
+  - **Sequence Models**: Standard LSTM and Standard GRU networks.
+  - **Convolutional Network**: Temporal Convolutional Network (TCN) with dilated causal 1D convolutions (dilation factors $d \in \{1, 2, 4\}$).
+  - **Tuned Model**: 3-Layer GRU (64 hidden units, dropout 0.2, learning rate 0.001) selected via comprehensive grid search across 1–5 layers and 0.1–0.3 dropout ranges.
+
+---
+
+## 📊 Quantitative Benchmark Results
+
+Evaluated on unseen test battery cell **NASA B0018**:
+
+| Model Architecture | Parameters | Train Time (s) | Inference Time (ms) | MAE | RMSE | MAPE (%) | $R^2$ Score |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Ridge Regression** | 154 | 0.05 | 0.10 | 0.0942 | 0.1120 | 11.45% | -0.4510 |
+| **Random Forest** | 50,000 | 1.85 | 2.40 | 0.0895 | 0.1065 | 10.82% | -0.3840 |
+| **Standard LSTM** | 91,457 | 10.69 | 1.20 | 0.0807 | 0.0951 | 9.72% | -0.1933 |
+| **Standard GRU** | 69,121 | 9.42 | 1.00 | 0.0846 | 0.1012 | 10.17% | -0.3518 |
+| **TCN (Dilated Residual)** | 220,321 | 15.50 | 1.90 | 0.0827 | 0.0984 | 9.86% | -0.2789 |
+| **Tuned 3-Layer GRU (Optimal)** | 118,529 | 12.30 | 1.10 | **0.0768** | **0.0892** | **8.84%** | **-0.0842** |
 
 ---
 
 ## 📂 Repository Structure
 
 ```tree
-├── data/
-│   ├── raw/                # 34 NASA .mat battery aging files
-│   └── processed/          # Cleaned cycle-by-cycle tabular CSVs (B0005-B0056)
-├── docs/
-│   ├── methodology_v1.md   # Comprehensive Methodology V1 (Approved)
-│   ├── mentor_review_corrections.md # Mentor feedback and decision log
-│   ├── week2_day1_problem_understanding_and_system_definition.md
-│   └── week2_day2_data_exploration_and_baseline_experiment.md
-├── experiments/
-│   ├── updated_experiment_plan.md   # Detailed experiment matrix & ablation plans
-│   └── training.log        # Hardware execution & training logs
-├── notebooks/
-│   ├── week2_day1_day2_submission.ipynb
-│   ├── 01_exploratory_data_analysis.ipynb
-│   ├── 02_model_training_and_benchmarking.ipynb
-│   └── 03_robustness_and_cross_cell_evaluation.ipynb
-├── reports/
-│   ├── mentor_review_2_presentation_pack.md  # 3-Slide Mentor Review 2 Pack
-│   ├── mentor_review_corrections.md          # Itemized feedback traceability table
-│   ├── week2_mentor_review_progress_pack.md  # Week 2 Day 1-2 Progress Pack
-│   └── final_research_report.md              # Comprehensive research report
-├── results/
-│   ├── figures/            # High-resolution publication-quality plots (300 DPI)
-│   └── metrics/            # CSV and Markdown benchmark comparison tables
-├── saved_models/           # Serialized PyTorch model checkpoints (.pt)
-├── src/
-│   ├── data/               # NASA/CALCE parsers and AUV mission simulator
-│   ├── features/           # Signal decomposition & sliding window builders
-│   ├── models/             # PyTorch architectures (LSTM, GRU, TCN, BiLSTM-Attn, Transformer, Hybrid)
-│   ├── training/           # PyTorch multi-task training engine with EarlyStopping
-│   ├── evaluation/         # Metrics, degradation-stage robustness & failure analysis
-│   └── utils/              # Seed control, hardware accelerator detection, loggers
-├── eda.py                  # Automated Exploratory Data Analysis pipeline
-├── train_and_benchmark.py  # End-to-end model training & evaluation pipeline
-├── requirements.txt        # Python dependency manifest
-└── README.md               # Project documentation
+├── notebooks/                       # Standardized day-by-day deliverables (Day 08 to Day 26)
+│   ├── day_wise_notebooks/
+│   │   ├── Day08_Data_Quality_Assessment/
+│   │   ├── Day09_Temporal_Split_Review/
+│   │   ├── Day10_Temporal_EDA/
+│   │   ├── Day11_Sequence_Processing/
+│   │   ├── Day12_Sequence_Pipeline/
+│   │   ├── Day13_Baseline_Prognostics/
+│   │   ├── Day14_Feature_Representation_Freeze/
+│   │   ├── Day15_LSTM_SOH_Estimation/
+│   │   ├── Day16_LSTM_vs_GRU_Comparison/
+│   │   ├── Day17_TCN_Dilated_Causal_Convolution/
+│   │   ├── Day18_Model_Benchmark_Comparison/
+│   │   ├── Day19_Hyperparameter_Optimization/
+│   │   ├── Day20_Cross_Cell_and_Stage_Robustness/
+│   │   ├── Day21_Candidate_Model_Review/
+│   │   ├── Day22_Frozen_Inference_Pipeline/
+│   │   ├── Day23_Model_Packaging_and_API/
+│   │   ├── Day24_Final_Presentation_Pack/
+│   │   ├── Day25_Failure_Conditions_Diagnostics/
+│   │   └── Day26_Comprehensive_Failure_Report/
+│   └── hierarchical_notebooks/
+├── ppt/                             # Milestone presentation slide decks
+├── reports/                         # Summary presentations & milestone reports
+│   └── Day27_Final_Presentation.md
+├── results/                         # Evaluation metrics, figures, and plots
+└── src/                             # Core Python data loaders and modeling utilities
 ```
 
 ---
 
-## 🚀 Quickstart & Reproducibility
+## 👥 Authors & Acknowledgments
 
-### 1. Environment Setup
-```bash
-git clone https://github.com/givemehat/battery-health-rul-deep-learning.git
-cd battery-health-rul-deep-learning
-
-# Create virtual environment
-python3 -m venv .venv
-source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### 2. Run Exploratory Data Analysis (EDA)
-Parses raw NASA battery files, extracts cycle telemetry, and generates publication figures in `results/figures/`:
-```bash
-python eda.py
-```
-
-### 3. Train & Benchmark All Models
-Trains all 8 architectures, evaluates cross-cell generalizability on unseen battery `B0018`, and outputs benchmark comparison tables:
-```bash
-python train_and_benchmark.py
-```
-
----
-
-## 📊 Benchmark Results
-
-Evaluated on unseen test battery cell **NASA B0018** (Trained on `B0005`, `B0006`; Validated on `B0007`):
-
-| Model Architecture | MAE (Cycles) | RMSE (Cycles) | MAPE (%) | $R^2$ Score | Max Error | Params | Train Time (s) | Inference Latency |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Temporal Convolutional Network (TCN)** | **5.050** | **6.049** | **41.27%** | **0.952** | **13.08** | **107,554** | **5.20s** | **1.54 ms** |
-| **Random Forest Regressor** | **7.100** | **7.947** | **43.62%** | **0.916** | **18.21** | 50,000 | 0.36s | 0.05 ms |
-| **Proposed Hybrid SOTA (CEEMDAN-TCN-BiLSTM-DualAttn)** | 14.397 | 15.809 | 109.87% | 0.669 | 22.05 | 293,090 | 4.96s | 0.28 ms |
-| **Temporal Transformer** | 14.507 | 16.041 | 115.68% | 0.659 | 23.32 | 67,714 | 11.39s | 1.44 ms |
-| **Empirical Double-Exp Baseline** | 17.432 | 19.196 | 133.88% | 0.512 | 22.00 | 4 | 0.01s | 0.10 ms |
-| **BiLSTM-Attention** | 17.536 | 20.209 | 142.11% | 0.459 | 30.94 | 220,674 | 9.41s | 1.35 ms |
-| **Standard LSTM** | 20.637 | 22.721 | 158.05% | 0.316 | 31.41 | 52,610 | 11.30s | 1.12 ms |
-| **Standard GRU** | 21.666 | 23.597 | 159.93% | 0.262 | 32.30 | 39,490 | 22.64s | 0.35 ms |
-
----
-
-## 📈 Visual Results
-
-### 1. Degradation Curves & Capacity Regeneration
-![Degradation Curves](results/figures/fig1_capacity_degradation_curves.png)
-*Figure 1: Discharge capacity degradation curves across NASA cells & simulated AUV mission profile.*
-
-![Regeneration Zoom](results/figures/fig2_capacity_regeneration_zoom.png)
-*Figure 2: Non-monotonic capacity recovery spikes observed after chemical rest intervals.*
-
-### 2. Multi-Resolution Signal Decomposition
-![Signal Decomposition](results/figures/fig5_signal_decomposition.png)
-*Figure 3: CEEMDAN-inspired decomposition isolating thermodynamic trend vs regeneration noise.*
-
-### 3. Model Trajectory Predictions & Residual Errors
-![Model Predictions](results/figures/fig6_model_rul_predictions_b0018.png)
-*Figure 4: Remaining Useful Life forecasting trajectory across all models on test cell B0018.*
-
-![Residual Distribution](results/figures/fig7_residual_error_distribution.png)
-*Figure 5: Residual prediction error distribution within the high-confidence ±5 cycle envelope.*
-
----
-
-## 🔬 References & Acknowledgments
-
-1. **Qiu, S., Zhang, B., Lv, Y., Zhang, J., & Zhang, C. (2024)**. *A Lithium-Ion Battery Remaining Useful Life Prediction Model Based on CEEMDAN Data Preprocessing and HSSA-LSTM-TCN*. World Electric Vehicle Journal, 15(5), 177.
-2. **Ma, D., Li, Y., Ma, T., & Pascoal, A. M. (2025)**. *The state of the art in key technologies for autonomous underwater vehicles: a review*. Ocean Engineering Review / Engineering.
-3. **NASA Prognostics Center of Excellence (PCoE)**. *Li-ion Battery Aging Dataset*, NASA Ames Research Center.
-4. **TIH, IIT Guwahati**: 4-Week Online Internship Research Program in Deep Learning and Battery Prognostics.
-
----
-
-## 📄 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- **Intern / Researcher**: Rajnish Singh
+- **Mentorship & Review**: Preetodeep Dev, TIH IIT Guwahati
+- **Programme**: TIH IIT Guwahati 4-Week Online Internship Programme

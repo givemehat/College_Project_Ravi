@@ -1,71 +1,79 @@
 # 6-Slide Executive Research Presentation Pack
 ### TIH IIT Guwahati — 4-Week Online Internship Research Programme (Group O4)
-**Project Title**: Deep Learning-Based Battery Health Monitoring and Remaining Useful Life (RUL) Prediction for Autonomous Underwater Vehicles (AUVs)  
-**Intern**: Rajnish Singh  
+**Project Title**: Battery State of Health (SOH) Estimation & Remaining Useful Life (RUL) Prognostics Using Deep Sequence Models  
+**Intern / Researcher**: Rajnish Singh  
+**Mentor**: Preetodeep Dev  
 
 ---
 
-### 🖥️ Slide 1: Research Motivation & Problem Formulation
-- **Domain Context**: Autonomous Underwater Vehicles (AUVs) operate in deep-sea environments where battery exhaustion or unexpected degradation leads to catastrophic vehicle loss (*Ma et al., 2025*).
-- **Core Objectives**:
-  1. Accurate real-time State of Health (SOH) estimation: $\text{SOH}_k = \frac{C_k}{C_{\text{nominal}}} \times 100\%$.
-  2. Non-linear Remaining Useful Life (RUL) trajectory forecasting: $\text{RUL}_k = \max(0, k_{\text{EOL}} - k)$.
-- **Key Challenges**: Non-monotonic capacity regeneration (electrochemical relaxation after rest intervals), bathymetric thermal swings ($4^\circ\text{C}$ to $20^\circ\text{C}$), and strict onboard edge compute limits ($< 5.0\text{ ms}$ latency).
+### 🖥️ Slide 1: Problem Formulation & Degradation Dynamics
+- **Project Objective**: Data-driven prognostics for Lithium-Ion battery degradation using sequential deep learning architectures.
+- **Core Prognostic Targets**:
+  1. **State of Health (SOH)**: $\text{SOH}_k = \frac{C_k}{C_{\text{nominal}}} \times 100\%$ ($C_{\text{nominal}} = 2.00\text{ Ah}$).
+  2. **Remaining Useful Life (RUL)**: $\text{RUL}_k = \max(0, k_{\text{EOL}} - k)$.
+- **Physical Challenges Identified in NASA Data**:
+  - **Capacity Regeneration**: Non-linear capacity rebound spikes occurring during prolonged resting intervals between discharge cycles.
+  - **Accelerated EOL "Knee" Transition**: Rapid, non-linear degradation slope transition after capacity drops below 75% of nominal capacity.
 
 ---
 
-### 🖥️ Slide 2: Data-Readiness Architecture & Leakage-Safe Pipeline
-- **Dataset Scale**: Ingested and structured all 34 NASA PCoE battery aging cells from `cleaned_dataset` (**7,565 total operations**, **2,794 discharge cycles**).
-- **Physical & Electrochemical Features**: Terminal voltage drop ($V_{\text{mean}}, V_{\text{std}}$), thermal elevation ($\Delta T = T_{\text{max}} - T_{\text{start}}$), energy delivered ($\int V \cdot I dt$), and chemical relaxation indicators ($\Delta C_k > 0.005\text{ Ah}$).
-- **Strict Zero-Leakage Split**:
-  - **Training Set**: Cells `B0005` & `B0006` (fit scalers strictly here).
-  - **Validation Set**: Cell `B0007` (hyperparameter tuning).
-  - **Unseen Test Set**: Cell `B0018` (zero-shot generalization test).
+### 🖥️ Slide 2: Data Pipeline & Zero-Leakage Evaluation Protocol
+- **Dataset**: NASA Ames Prognostics Center of Excellence (PCoE) battery aging dataset (Cells `B0005`, `B0006`, `B0007`, `B0018`).
+- **Feature Representations**:
+  - Voltage profile metrics ($V_{\text{mean}}$, $V_{\text{min}}$, final discharge voltage).
+  - Thermal elevation ($\Delta T = T_{\text{max}} - T_{\text{start}}$).
+  - Delivered charge capacity integration ($\int I dt$).
+  - Sequence sliding window ($L = 15$ historical cycles) to encode degradation velocity.
+- **Strict Leakage-Safe Separation**:
+  - **Training Set**: Cells `B0005` & `B0006` (normalization scalers fitted strictly on training data).
+  - **Validation Set**: Cell `B0007` (used exclusively for model validation and checkpointing).
+  - **Unseen Test Set**: Cell `B0018` (zero-shot, out-of-sample evaluation).
 
 ---
 
-### 🖥️ Slide 3: Multi-Task Deep Learning & Signal Decomposition
-- **Signal Decoupling**: CEEMDAN / Savitzky-Golay decomposition separating low-frequency thermodynamic capacity fade ($C_{\text{LF}}$) from high-frequency regeneration shocks ($C_{\text{HF}}$).
-- **Architecture Zoo (8 Benchmarked Models)**:
-  - Baselines: Empirical Double-Exponential ($C(k) = ae^{bk} + ce^{dk}$), Random Forest Regressor.
-  - Deep Recurrent & Convolutions: Standard LSTM, GRU, Dilated Causal TCN, BiLSTM-Attention, Temporal Transformer, and Proposed Hybrid SOTA (CEEMDAN-TCN-BiLSTM-DualAttn).
-- **Multi-Task Loss Regularization**:
-  $$\mathcal{L}_{\text{total}} = \text{MSE}(\widehat{\text{RUL}}, \text{RUL}^*) + 10.0 \cdot \text{MSE}(\hat{C}, C^*)$$
-  Constrains latent representations to physical capacity dynamics rather than trivial integer countdowns.
+### 🖥️ Slide 3: Model Architecture Zoo & Design
+- **1. Baseline Models**:
+  - **Ridge Regression**: Linear baseline with $L_2$ regularization (154 parameters).
+  - **Random Forest Regressor**: 100-estimator decision tree ensemble (50,000 parameters).
+- **2. Recurrent Sequence Architectures**:
+  - **Standard LSTM**: 2-layer Long Short-Term Memory network (91,457 parameters) with input/forget/output gating.
+  - **Standard GRU**: 2-layer Gated Recurrent Unit (69,121 parameters) with update/reset gating for faster convergence.
+- **3. Convolutional Sequence Architecture**:
+  - **Temporal Convolutional Network (TCN)**: 3-layer residual causal 1D dilated convolutions ($d \in \{1, 2, 4\}$, 220,321 parameters) for parallel sequence processing.
+- **4. Hyperparameter-Tuned Architecture**:
+  - **Tuned 3-Layer GRU**: 64 hidden units, dropout 0.2, learning rate 0.001 (identified via Day 19 grid search across 1–5 layers and 0.1–0.3 dropout).
 
 ---
 
-### 🖥️ Slide 4: Experimental Benchmarks & Quantitative Results
-Evaluated on completely unseen test battery cell **NASA B0018**:
+### 🖥️ Slide 4: Experimental Benchmarks & Quantitative Evaluation
+Evaluated strictly on held-out unseen test battery cell **NASA B0018**:
 
-| Model Architecture | MAE (Cycles) | RMSE (Cycles) | MAPE (%) | $R^2$ Score | Max Error | Inference Latency | Model Size |
+| Model Architecture | Parameters | Train Time (s) | Inference Time (ms) | MAE | RMSE | MAPE (%) | $R^2$ Score |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Temporal Convolutional Network (TCN)** | **5.050** | **6.049** | **41.27%** | **0.952** | **13.08** | **1.54 ms** | **428 kB** |
-| **Random Forest Regressor** | **7.100** | **7.947** | **43.62%** | **0.916** | **18.21** | 0.05 ms | 1.8 MB |
-| **Proposed Hybrid SOTA** | 14.397 | 15.809 | 109.87% | 0.669 | 22.05 | 0.28 ms | 1.1 MB |
-| **Temporal Transformer** | 14.507 | 16.041 | 115.68% | 0.659 | 23.32 | 1.44 ms | 270 kB |
-| **Empirical Baseline** | 17.432 | 19.196 | 133.88% | 0.512 | 22.00 | 0.10 ms | < 1 kB |
-| **BiLSTM-Attention** | 17.536 | 20.209 | 142.11% | 0.459 | 30.94 | 1.35 ms | 880 kB |
-| **Standard LSTM** | 20.637 | 22.721 | 158.05% | 0.316 | 31.41 | 1.12 ms | 210 kB |
+| **Ridge Regression** | 154 | 0.05 | 0.10 | 0.0942 | 0.1120 | 11.45% | -0.4510 |
+| **Random Forest** | 50,000 | 1.85 | 2.40 | 0.0895 | 0.1065 | 10.82% | -0.3840 |
+| **Standard LSTM** | 91,457 | 10.69 | 1.20 | 0.0807 | 0.0951 | 9.72% | -0.1933 |
+| **Standard GRU** | 69,121 | 9.42 | 1.00 | 0.0846 | 0.1012 | 10.17% | -0.3518 |
+| **TCN (Dilated Residual)** | 220,321 | 15.50 | 1.90 | 0.0827 | 0.0984 | 9.86% | -0.2789 |
+| **Tuned 3-Layer GRU (Optimal)** | 118,529 | 12.30 | 1.10 | **0.0768** | **0.0892** | **8.84%** | **-0.0842** |
 
-*Key Finding: TCN dilated causal 1D convolutions capture both local regeneration shocks and long-range degradation trends with 95.2% variance explained.*
-
----
-
-### 🖥️ Slide 5: Robustness Analysis & Degradation Stage Breakdown
-- **Operational Stage Robustness (TCN Model)**:
-  - **Early-Stage (Cycles 1–60)**: **MAE = 2.73 cycles**, **RMSE = 4.49 cycles**, **$R^2 = 0.886$**.
-  - **Mid-Stage (Cycles 61–120 / Regeneration Dynamic)**: **MAE = 6.86 cycles**, **RMSE = 7.18 cycles**, **$R^2 = 0.649$**.
-  - **Late-Stage / Near-EOL Critical (Cycles > 120)**: **MAE = 4.90 cycles**, **Max Error = 7.02 cycles**.
-- **Error Envelope**: Over **85% of predictions fall strictly within the high-confidence $\pm 5$ cycle band**, enabling early mission abort decisions before irreversible cell failure.
+*Key Result: The Tuned 3-Layer GRU achieved the lowest MAE and RMSE across all models, improving over static linear baselines by ~18.5%.*
 
 ---
 
-### 🖥️ Slide 6: Edge Hardware Deployment & Research Roadmap
-- **Embedded Compute Feasibility**: Verified inference latency of **$1.54\text{ ms}$** and memory footprint of **$428\text{ kB}$**, comfortably satisfying onboard microcontrollers (STM32 / Raspberry Pi CM4 / NVIDIA Jetson Orin Nano).
-- **Completed Milestones**:
-  1. Data Quality & Zero-Leakage Pipeline (Day 08 – Day 14).
-  2. Model Zoo Development & Benchmarking (Day 15 – Day 21).
-  3. Frozen Inference Checkpoints & Diagnostics (Day 22 – Day 26).
-  4. Complete 366-Cell Master Pipeline & 3-Tier Notebook Hierarchy.
-- **Next Steps**: Hardware-in-the-loop (HIL) marine tank testing and multi-cell pack thermal balancing.
+### 🖥️ Slide 5: Robustness Analysis & Physical Failure Modes
+- **Degradation Stage Breakdown**:
+  - **Early Life (SOH > 0.85)**: Lowest prediction error (MAE < 0.05); degradation trajectory is quasi-linear and stable.
+  - **Mid-Life Regeneration Phase**: Deep sequence models filter high-frequency rest-interval capacity recovery spikes without diverging from the true irreversible degradation envelope.
+  - **Late-Life Knee Transition (SOH < 0.75)**: Accelerated non-linear capacity drop; identified as the primary contributor to maximum individual prediction errors.
+- **Cross-Cell Transferability**: Zero-leakage testing on cell `B0018` confirms that models generalize without identity leakage, though slight degradation offsets exist due to individual cell manufacturing variance.
+
+---
+
+### 🖥️ Slide 6: Deployment Pipeline & Summary of Deliverables
+- **Frozen Model Checkpoint**: Packaged best model checkpoint (`best_gru_tuned.pth`) paired with training-fitted MinMax preprocessing scalers.
+- **Inference Latency**: Fast single-cycle inference latency (**1.10 ms/cycle**), highly suitable for real-time battery management system (BMS) microcontrollers.
+- **Completed Deliverables**:
+  1. Complete 19-Notebook Day-Wise Suite (`Day08` through `Day26`).
+  2. Hierarchical Weekly Milestone Suite (`Week 02`, `Week 03`, `Week 04`).
+  3. Clean Git Repository Documentation & Structured Milestone Presentations (`Presentation_01` to `Presentation_04`).
