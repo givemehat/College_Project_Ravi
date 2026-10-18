@@ -5,5 +5,8 @@ __pycache__/
 data/raw/BatteryDataSet.zip
 data/raw/*.zip
 data/raw/*.mat
+data/raw/
+data/cleaned_dataset
+data/cleaned_dataset/
 *.log
 .DS_Store
