@@ -273,7 +273,8 @@ All deep architectures run in under **0.25 ms per sample**, rendering them compl
 │   ├── 01_exploratory_data_analysis.ipynb   # Raw telemetry parsing & data audit
 │   ├── 02_model_training_and_benchmarking.ipynb  # Comparative benchmark execution
 │   ├── 03_robustness_and_cross_cell_evaluation.ipynb # Cross-cell & degradation-stage analysis
-│   └── Master_Battery_Health_RUL_Benchmark.ipynb     # End-to-end master pipeline notebook
+│   ├── End_to_End_Battery_Prognostics_Pipeline.ipynb # Unified end-to-end master Colab pipeline
+│   └── Master_Battery_Health_RUL_Benchmark.ipynb     # Synchronized benchmark pipeline notebook
 ├── reports/                                 # Summary presentations & audit trails
 │   ├── Executive_Research_Presentation.md   # Executive research slide deck
 │   └── Presentation_Results_Compendium.md   # Full quantitative results compendium
