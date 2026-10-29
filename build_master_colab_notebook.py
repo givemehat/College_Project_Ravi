@@ -21,35 +21,35 @@ def add_code(code_str):
 
 # Notebook Header
 add_md("""# Master Deep Learning Battery Health Monitoring & RUL Prediction Pipeline
-### TIH, IIT Guwahati — 4-Week Online Internship Research Project (Group O4)
-**Project Title**: Deep Learning-Based Battery Health Monitoring and Remaining Useful Life (RUL) Prediction for Autonomous Underwater Vehicles (AUVs)  
-**Author / Intern**: Rajnish Singh  
-**Structure**: Complete Day-by-Day Workflow from **Day 08** to **Day 26**  
+### Uncertainty-Aware Battery Health Prognostics for Autonomous Underwater Vehicles (AUVs)
+**Paper**: *Uncertainty-Aware Battery Health Prognostics for Autonomous Underwater Vehicles: A Label-Audited, Leakage-Safe Study with Bayesian Inference* (IEEE Journal of Oceanic Engineering)  
+**Authors**: Rajnish Singh, Dr. Rakesh Kumar, Ravi Kumar  
+**Affiliation**: Department of Computer Science & Engineering, Gautam Buddha University, Greater Noida, India  
 **Dataset**: NASA Ames Prognostics Center of Excellence (PCoE) Battery Aging Dataset (`cleaned_dataset`)
 
 ---
-## 📑 Table of Contents
-- **Phase 1: Data Cleaning, Temporal EDA & Feature Engineering**
-  - [Day 08: Battery Data Quality Assessment & Sequence Alignment](#day-08)
-  - [Day 09: Temporal Split Review & Zero-Leakage Data Strategy](#day-09)
-  - [Day 10: Temporal EDA & Degradation Trajectory Visualizations](#day-10)
-  - [Day 11: Sequence Processing & Electrochemical Feature Representations](#day-11)
-  - [Day 12: Temporal Sliding Window Pipeline & PyTorch DataLoaders](#day-12)
-  - [Day 13: Baseline Empirical & Classical Machine Learning Models](#day-13)
-  - [Day 14: Feature Representation Freeze & Baseline Benchmark Lock](#day-14)
+## 📑 Pipeline Workflow
+- **Phase 1: Data Audit, Temporal Split & Feature Engineering**
+  - Section 1: Battery Data Quality Assessment & Sequence Alignment
+  - Section 2: Temporal Split Review & Zero-Leakage Data Strategy
+  - Section 3: Temporal EDA & Degradation Trajectory Visualizations
+  - Section 4: Sequence Processing & Electrochemical Feature Representations
+  - Section 5: Temporal Sliding Window Pipeline & PyTorch DataLoaders
+  - Section 6: Baseline Empirical & Classical Machine Learning Models
+  - Section 7: Feature Representation Freeze & Baseline Benchmark Lock
 - **Phase 2: Deep Learning Model Zoo & Comparative Benchmarking**
-  - [Day 15: Multi-Layer LSTM Architecture for SOH & RUL Forecasting](#day-15)
-  - [Day 16: LSTM vs GRU Comparative Modeling](#day-16)
-  - [Day 17: Temporal Convolutional Network (TCN with Dilated Causal 1D Convolutions)](#day-17)
-  - [Day 18: Multi-Model Comparative Benchmarking on Unseen Test Battery B0018](#day-18)
-  - [Day 19: Hyperparameter Optimization & Fine-Tuning](#day-19)
-  - [Day 20: Cross-Cell & Degradation-Stage Robustness Analysis](#day-20)
-  - [Day 21: Candidate Model Selection & Validation Review](#day-21)
+  - Section 8: Multi-Layer LSTM Architecture for SOH & RUL Forecasting
+  - Section 9: LSTM vs GRU Comparative Modeling
+  - Section 10: Temporal Convolutional Network (TCN with Dilated Causal 1D Convolutions)
+  - Section 11: Multi-Model Comparative Benchmarking on Unseen Test Battery B0018
+  - Section 12: Hyperparameter Optimization & Fine-Tuning
+  - Section 13: Cross-Cell & Degradation-Stage Robustness Analysis
+  - Section 14: Candidate Model Selection & Validation Review
 - **Phase 3: Failure Analysis, Frozen Inference & Final Deliverables**
-  - [Day 22: Frozen Inference Pipeline & Edge Deployment Readiness](#day-22)
-  - [Day 24: Final Presentation Pack & Visual Asset Compilation](#day-24)
-  - [Day 25: Failure Case Diagnostics & Worst-Case Error Analysis](#day-25)
-  - [Day 26: Comprehensive Research Summary & Final AUV Deployment Report](#day-26)
+  - Section 15: Frozen Inference Pipeline & Edge Deployment Readiness
+  - Section 16: Final Presentation Pack & Visual Asset Compilation
+  - Section 17: Failure Case Diagnostics & Worst-Case Error Analysis
+  - Section 18: Comprehensive Research Summary & Final AUV Deployment Report
 """)
 
 # Setup & Global Imports
@@ -119,8 +119,7 @@ def locate_dataset_dir():
         'cleaned_dataset',
         '../cleaned_dataset',
         'data/cleaned_dataset',
-        '/Users/rajnishsingh/Downloads/IIT-G-Project/cleaned_dataset',
-        '/Users/rajnishsingh/Downloads/BATTERY RUL/data/cleaned_dataset'
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/cleaned_dataset')
     ]
     for c in candidates:
         if os.path.exists(os.path.join(c, 'metadata.csv')):
@@ -645,16 +644,12 @@ nb_structure = {
     "nbformat_minor": 2
 }
 
-# Save in multiple accessible locations
-target_paths = [
-    '/Users/rajnishsingh/Downloads/BATTERY RUL/notebooks/Master_Battery_Health_RUL_Day08_to_Day26.ipynb',
-    '/Users/rajnishsingh/Downloads/Google_collab/Master_Battery_Health_RUL_Day08_to_Day26.ipynb',
-    '/Users/rajnishsingh/Downloads/IIT-G-Project/Master_Battery_Health_RUL_Day08_to_Day26.ipynb'
-]
+# Save to repository notebooks folder
+repo_dir = os.path.dirname(os.path.abspath(__file__))
+target_path = os.path.join(repo_dir, 'notebooks/Master_Battery_Health_RUL_Benchmark.ipynb')
 
-for tp in target_paths:
-    os.makedirs(os.path.dirname(tp), exist_ok=True)
-    with open(tp, 'w', encoding='utf-8') as f:
-        json.dump(nb_structure, f, indent=2)
-    print(f"Saved master notebook to: {tp}")
+os.makedirs(os.path.dirname(target_path), exist_ok=True)
+with open(target_path, 'w', encoding='utf-8') as f:
+    json.dump(nb_structure, f, indent=2)
+print(f"Saved master notebook to: {target_path}")
 

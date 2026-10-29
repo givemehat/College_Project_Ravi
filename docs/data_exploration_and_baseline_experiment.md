@@ -1,9 +1,8 @@
-# Week 2 — Day 2: Practical Data Exploration & Baseline Modeling Experiment
+# Data Exploration & Baseline Modeling Experiment
 
-**Programme**: TIH, IIT Guwahati — 4-Week Online Internship Project  
-**Track**: Group O4 — Deep Learning-Based Battery Health Monitoring and Remaining Useful Life (RUL) Prediction for Autonomous Underwater Vehicles (AUVs)  
-**Author**: Rajnish Singh  
-**Submission Date**: Week 2, Day 2  
+**Manuscript**: *Uncertainty-Aware Battery Health Prognostics for Autonomous Underwater Vehicles: A Label-Audited, Leakage-Safe Study with Bayesian Inference* (IEEE Journal of Oceanic Engineering)  
+**Authors**: Rajnish Singh, Dr. Rakesh Kumar, Ravi Kumar  
+**Affiliation**: Department of Computer Science & Engineering, Gautam Buddha University, Greater Noida, India  
 
 ---
 

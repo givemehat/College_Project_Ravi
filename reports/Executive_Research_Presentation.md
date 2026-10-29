@@ -1,8 +1,8 @@
-# 7-Slide Executive Research Presentation Pack
-### TIH IIT Guwahati — 4-Week Online Internship Research Programme (Group O4)
-**Project Title**: Battery State of Health (SOH) Estimation & Remaining Useful Life (RUL) Prognostics Using Deep Sequence Models  
-**Intern / Researcher**: Rajnish Singh  
-**Mentor**: Preetodeep Dev  
+# Executive Research Presentation Pack
+### Uncertainty-Aware Battery Health Prognostics for Autonomous Underwater Vehicles (AUVs)
+**Paper**: *Uncertainty-Aware Battery Health Prognostics for Autonomous Underwater Vehicles: A Label-Audited, Leakage-Safe Study with Bayesian Inference* (IEEE Journal of Oceanic Engineering)  
+**Authors**: Rajnish Singh, Dr. Rakesh Kumar, Ravi Kumar  
+**Affiliation**: Department of Computer Science & Engineering, Gautam Buddha University, Greater Noida, India  
 
 ---
 
@@ -99,6 +99,6 @@ Evaluated strictly on held-out unseen test battery cell **NASA B0018**:
 - **Frozen Model Checkpoint**: Packaged best model checkpoint (`best_gru_tuned.pth`) paired with training-fitted StandardScaler preprocessing configuration.
 - **Inference Latency**: Fast single-cycle inference latency (**0.21 ms/cycle** mean, **0.23 ms** P95), well within real-time battery management system (BMS) microcontrollers (< 2.0 ms SLA).
 - **Completed Deliverables**:
-  1. Complete 19-Notebook Day-Wise Suite (`Day08` through `Day26`).
-  2. Hierarchical Weekly Milestone Suite (`Week 02`, `Week 03`, `Week 04`).
-  3. Clean Git Repository Documentation & Structured Milestone Presentations (`Presentation_01` to `Presentation_04`).
+  1. Modular research suite and master benchmark pipeline notebook (`Master_Battery_Health_RUL_Benchmark.ipynb`).
+  2. Publication-quality evaluation compendium and calibration diagnostics across 33 cells.
+  3. Fully audited, leak-free battery prognostics repository with sequential Bayesian inference.

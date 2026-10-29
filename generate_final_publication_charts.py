@@ -12,7 +12,7 @@ plt.rcParams['font.sans-serif'] = 'Helvetica, Arial, DejaVu Sans'
 plt.rcParams['axes.edgecolor'] = '#333333'
 plt.rcParams['axes.linewidth'] = 0.8
 
-BASE_DIR = "/Users/rajnishsingh/Downloads/IIT-G-Project"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 METADATA_PATH = os.path.join(BASE_DIR, "cleaned_dataset/metadata.csv")
 NPZ_PATH = os.path.join(BASE_DIR, "dataset_v1_frozen/dataset_v1_cell_splits.npz")
 CHARTS_DIR = os.path.join(BASE_DIR, "Charts")

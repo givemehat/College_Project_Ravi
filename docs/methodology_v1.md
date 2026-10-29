@@ -1,9 +1,8 @@
-# Methodology Document: Deep Learning-Based Battery Health Monitoring and Remaining Useful Life (RUL) Prediction
+# Methodology Document: Uncertainty-Aware Battery Health Prognostics for Autonomous Underwater Vehicles (AUVs)
 
-**Programme**: TIH, IIT Guwahati — 4-Week Online Internship Research Project  
-**Track**: Group O4 — Deep Learning / Battery Prognostics / Sequential Modeling  
-**Intern / Researcher**: Rajnish Singh  
-**Mentor**: Preetodeep Dev  
+**Research Manuscript**: *Uncertainty-Aware Battery Health Prognostics for Autonomous Underwater Vehicles: A Label-Audited, Leakage-Safe Study with Bayesian Inference* (IEEE Journal of Oceanic Engineering)  
+**Authors**: Rajnish Singh, Dr. Rakesh Kumar, Ravi Kumar  
+**Affiliation**: Department of Computer Science & Engineering, Gautam Buddha University, Greater Noida, India  
 
 ---
 
@@ -73,6 +72,6 @@ Evaluated on unseen test battery cell **NASA B0018**:
 
 ## 5. Summary & Deliverables
 
-1. **Robust Zero-Leakage Pipeline**: Clean, reproducible preprocessing and sequence generation across 26 structured daily tasks.
-2. **Model Selection Rationale**: The Tuned 3-Layer GRU demonstrated the strongest generalization performance (lowest MAE and RMSE) while maintaining edge-deployable inference latency ($1.10\text{ ms/cycle}$).
-3. **Artifacts & Checkpoints**: Packaged deployment checkpoint (`best_gru_tuned.pth`) with serialized preprocessing scalers and comprehensive day-wise evaluation notebooks.
+1. **Robust Zero-Leakage Pipeline**: Clean, reproducible preprocessing and sequence generation across all 33 usable NASA battery cells.
+2. **Model Selection Rationale**: Comprehensive evaluation across classical (Ridge, Random Forest) and deep sequence models (LSTM, GRU, TCN), confirming edge-deployable inference latency ($<0.25\text{ ms/cycle}$ on CPU).
+3. **Artifacts & Checkpoints**: Packaged deployment checkpoint (`best_gru_tuned.pth`) with serialized preprocessing scalers and modular evaluation notebooks.
