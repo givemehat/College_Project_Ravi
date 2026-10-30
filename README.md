@@ -6,6 +6,7 @@
 </p>
 
 <p align="center">
+  <a href="https://colab.research.google.com/github/givemehat/College_Project_Ravi/blob/main/notebooks/Master_Battery_Health_RUL_Benchmark.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a>
   <a href="https://www.python.org/downloads/release/python-3100/"><img alt="Python 3.10+" src="https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=flat&logo=python"></a>
   <a href="https://pytorch.org/"><img alt="PyTorch 2.0+" src="https://img.shields.io/badge/PyTorch-2.0%2B-EE4C2C.svg?style=flat&logo=pytorch"></a>
   <a href="https://www.gbu.ac.in/"><img alt="Institution: Gautam Buddha University" src="https://img.shields.io/badge/Institution-Gautam%20Buddha%20University-1E3A8A.svg"></a>
